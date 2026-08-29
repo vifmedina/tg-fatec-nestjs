@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  nestjs:
+    container_name: projeto_nestjs
+    build: .
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_NAME=${MYSQL_DATABASE}
+    networks:
+      - tg
+    volumes:
+      - .:/var/www/app
+      - /var/www/app/node_modules
+    cpus: 1
+    restart: unless-stopped
+    mem_limit: 2g
+    depends_on:
+     - db
+
+  db:
+    image: mysql:8.0
+    container_name: db_nestjs
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data_nestjs:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - tg
+
+  proxy-reverse:
+    image: nginx:stable
+    restart: unless-stopped
+    container_name: proxy_reverse_nestjs
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - tg
+
+volumes:
+  mysql_data_nestjs:
+    driver: local
+
+networks:
+  tg:
+    driver: bridge
