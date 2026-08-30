@@ -1,2 +1,23 @@
+# dependence
+node_modules/
+
+# build
+dist/
+build/
+
+# environment
 .env
-node_modules
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
