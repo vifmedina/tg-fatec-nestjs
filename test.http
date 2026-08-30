@@ -1,0 +1,28 @@
+### 1. Criar um usuário
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Nome",
+  "age": 1,
+  "status": true
+}
+
+### 2. Listar todos os usuários
+GET http://localhost:3000/users
+
+### 3. Buscar usuário por ID (ex: ID 1)
+GET http://localhost:3000/users/1
+
+### 4. Atualizar usuário (ex: ID 1)
+PATCH http://localhost:3000/users/1
+Content-Type: application/json
+
+{
+  "name": "Nome Atualizado",
+  "age": 100,
+  "status": true
+}
+
+### 5. Deletar usuário (ex: ID 1)
+DELETE http://localhost:3000/users/1
