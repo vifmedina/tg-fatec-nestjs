@@ -8,35 +8,62 @@ export const options = {
     { duration: '10s', target: 0 },
   ],
   thresholds: {
-    http_req_duration: ['p(95)<500'],
     http_req_failed: ['rate<0.01'],
+    http_req_duration: ['p(95)<300'],
   },
 };
 
+const BASE_URL = 'http://localhost:3000';
+
 export default function () {
-  // get
-  const resGet = http.get('http://localhost:3000/users');
-  check(resGet, {
-    'get status 200': (r) => r.status === 200,
-  });
-
-  // post
-  const url = 'http://localhost:3000/users';
-  const payload = JSON.stringify({
-    name: `User ${__VU}-${__ITER}`,
-    age: 25,
-    status: 'active',
-  });
-
   const params = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
   };
 
-  const resPost = http.post(url, payload, params);
-  check(resPost, {
-    'post status 201': (r) => r.status === 201,
+  // POST
+  const createPayload = JSON.stringify({
+    name: `User ${__VU}-${__ITER}`,
+    age: Math.floor(Math.random() * 40) + 18,
+    status: true,
+  });
+
+  const resPost = http.post(`${BASE_URL}/users`, createPayload, params);
+  const postSuccess = check(resPost, {
+    'POST /users status 201': (r) => r.status === 201,
+  });
+
+  if (!postSuccess) {
+    return;
+  }
+
+  const userId = resPost.json('id');
+
+  // GET ALL
+  const resGetList = http.get(`${BASE_URL}/users`);
+  check(resGetList, {
+    'GET /users status 200': (r) => r.status === 200,
+  });
+
+  // GET BY ID
+  const resGetById = http.get(`${BASE_URL}/users/${userId}`);
+  check(resGetById, {
+    'GET /users/:id status 200': (r) => r.status === 200,
+    'GET /users/:id return correct name': (r) => r.json('id') === userId,
+  });
+
+  // PATCH
+  const updatePayload = JSON.stringify({
+    status: false,
+  });
+  const resPatch = http.patch(`${BASE_URL}/users/${userId}`, updatePayload, params);
+  check(resPatch, {
+    'PATCH /users/:id status 200': (r) => r.status === 200,
+  });
+
+  // DELETE
+  const resDelete = http.del(`${BASE_URL}/users/${userId}`);
+  check(resDelete, {
+    'DELETE /users/:id status 200/204': (r) => r.status === 200 || r.status === 204,
   });
 
   sleep(1);
