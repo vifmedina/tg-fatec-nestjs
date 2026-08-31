@@ -39,11 +39,33 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const { name, age, status } = updateUserDto;
-    await this.pool.execute(
-      'UPDATE users SET name = ?, age = ?, status = ? WHERE id = ?',
-      [name, age, status, id] as any[],
-    );
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    if (updateUserDto.name !== undefined) {
+      fields.push('name = ?');
+      values.push(updateUserDto.name);
+    }
+
+    if (updateUserDto.age !== undefined) {
+      fields.push('age = ?');
+      values.push(updateUserDto.age);
+    }
+
+    if (updateUserDto.status !== undefined) {
+      fields.push('status = ?');
+      values.push(updateUserDto.status);
+    }
+
+    if (fields.length === 0) {
+      return { id };
+    }
+
+    values.push(id);
+
+    const query = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
+    await this.pool.execute(query, values);
+
     return { id, ...updateUserDto };
   }
 
