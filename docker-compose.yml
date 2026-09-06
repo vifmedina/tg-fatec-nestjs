@@ -17,7 +17,7 @@ services:
     volumes:
       - .:/var/www/app
       - /var/www/app/node_modules
-    cpus: 1
+    cpus: 2
     restart: unless-stopped
     mem_limit: 2g
     depends_on:
