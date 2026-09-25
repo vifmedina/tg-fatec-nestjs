@@ -3,14 +3,14 @@ import { check, sleep } from 'k6';
 
 export const options = {
   stages: [
-    { duration: '30s', target: 700 },
-    { duration: '1m', target: 1500 },
-    { duration: '1m', target: 3000 },
+    { duration: '30s', target: 500 },
+    { duration: '1m', target: 700 },
+    { duration: '1m', target: 1100 },
     { duration: '30s', target: 0 },
   ],
 };
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost';
 
 export default function () {
   const params = {

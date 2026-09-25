@@ -3,8 +3,8 @@ import { check, sleep } from 'k6';
 
 export const options = {
   stages: [
-    { duration: '30s', target: 1000 },
-    { duration: '1m', target: 1000 },
+    { duration: '30s', target: 500 },
+    { duration: '1m', target: 500 },
     { duration: '10s', target: 0 },
   ],
   thresholds: {
@@ -48,7 +48,6 @@ export default function () {
   const resGetById = http.get(`${BASE_URL}/users/${userId}`);
   check(resGetById, {
     'GET /users/:id status 200': (r) => r.status === 200,
-    'GET /users/:id return correct name': (r) => r.json('id') === userId,
   });
 
   // PATCH

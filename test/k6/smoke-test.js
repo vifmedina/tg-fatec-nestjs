@@ -6,7 +6,7 @@ export const options = {
   duration: '10s',
 }
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost';
 
 export default function () {
   const params = {
