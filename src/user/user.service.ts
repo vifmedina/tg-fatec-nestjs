@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as mysql from 'mysql2/promise'
+import * as mysql from 'mysql2/promise';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -9,11 +9,11 @@ export class UserService {
 
   constructor() {
     this.pool = mysql.createPool({
-      host: 'localhost',
-      port: 3307,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
+      host: 'db',
+      port: 3306,
+      user: 'root',
+      password: '0cc41353b2d1da875f865ed80b9624696be620510548245942d1a48a9d53f1b7',
+      database: 'projeto_tg',
       waitForConnections: true,
       connectionLimit: 10,
     });

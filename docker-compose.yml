@@ -14,9 +14,6 @@ services:
       - DB_NAME=${MYSQL_DATABASE}
     networks:
       - tg
-    volumes:
-      - .:/var/www/app
-      - /var/www/app/node_modules
     cpus: 2
     restart: unless-stopped
     mem_limit: 2g
