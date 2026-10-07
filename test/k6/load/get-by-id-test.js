@@ -16,7 +16,7 @@ export const options = {
 const BASE_URL = 'http://localhost';
 
 export default function () {
-  const resGetById = http.get(`${BASE_URL}/users/${1}`);
+  const resGetById = http.get(`${BASE_URL}/users/${5}`);
   check(resGetById, {
     'GET /users/:id status 200': (r) => r.status === 200,
   });

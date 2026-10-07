@@ -23,7 +23,7 @@ export default function () {
   const updatePayload = JSON.stringify({
     status: false,
   });
-  const resPatch = http.patch(`${BASE_URL}/users/${1}`, updatePayload, params);
+  const resPatch = http.patch(`${BASE_URL}/users/${5}`, updatePayload, params);
   check(resPatch, {
     'PATCH /users/:id status 200': (r) => r.status === 200,
   });
