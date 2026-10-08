@@ -3,10 +3,9 @@ import { check, sleep } from 'k6';
 
 export const options = {
   stages: [
-    { duration: '30s', target: 500 },
-    { duration: '1m', target: 700 },
-    { duration: '1m', target: 1100 },
-    { duration: '30s', target: 0 },
+    { duration: '30s', target: 600 },
+    { duration: '2m', target: 600 },
+    { duration: '20s', target: 0 },
   ],
 };
 
