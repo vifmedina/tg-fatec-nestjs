@@ -5,20 +5,21 @@ services:
     expose:
       - "3000"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - PORT=3000
       - DB_HOST=db
       - DB_PORT=3306
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_NAME=${MYSQL_DATABASE}
     networks:
       - tg
     cpus: 2
     restart: unless-stopped
     mem_limit: 2g
     depends_on:
-     - db
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:8.0
@@ -28,11 +29,17 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data_nestjs:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
     networks:
       - tg
 
@@ -46,6 +53,8 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     networks:
       - tg
+    depends_on:
+      - nestjs
 
 volumes:
   mysql_data_nestjs:

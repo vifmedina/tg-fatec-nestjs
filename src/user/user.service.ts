@@ -1,90 +1,77 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+const USER_COLUMNS = 'id, name, age, status AS isActive, created_at AS createdAt';
+
 @Injectable()
-export class UserService implements OnModuleInit {
+export class UserService {
   private pool: mysql.Pool;
 
   constructor() {
     this.pool = mysql.createPool({
-      host: process.env.DB_HOST || 'db',
-      port: 3306,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT ?? 3306),
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       waitForConnections: true,
-      connectionLimit: 100,
+      connectionLimit: 10,
+      // Return TINYINT(1) columns as booleans, like the ASP.NET Core API
+      typeCast: (field, next) =>
+        field.type === 'TINY' && field.length === 1 ? field.string() === '1' : next(),
     });
   }
 
-  async onModuleInit() {
-    await this.pool.execute(`
-        CREATE TABLE IF NOT EXISTS users (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          age INT NOT NULL,
-          status BOOLEAN NOT NULL
-        )
-      `);
-    console.log('Tabela "users" verificada/criada com sucesso!');
-  }
-
   async create(createUserDto: CreateUserDto) {
-    const { name, age, status } = createUserDto;
-    const [result] = await this.pool.execute(
-      'INSERT INTO users (name, age, status) VALUES (?, ?, ?)',
-      [name, age, status],
+    const { name, age } = createUserDto;
+    const createdAt = new Date();
+    const [result] = await this.pool.execute<mysql.ResultSetHeader>(
+      'INSERT INTO users (name, age, status, created_at) VALUES (?, ?, ?, ?)',
+      [name, age, true, createdAt],
     );
-    return { id: (result as any).insertId, ...createUserDto };
+    return { id: result.insertId, name, age, isActive: true, createdAt };
   }
 
   async findAll() {
-    const [rows] = await this.pool.execute('SELECT * FROM users');
+    const [rows] = await this.pool.execute(`SELECT ${USER_COLUMNS} FROM users LIMIT 1000`);
     return rows;
   }
 
   async findOne(id: number) {
-    const [rows] = await this.pool.execute('SELECT * FROM users WHERE id = ?', [
-      id,
-    ]);
-    return (rows as any)[0];
+    const [rows] = await this.pool.execute<mysql.RowDataPacket[]>(
+      `SELECT ${USER_COLUMNS} FROM users WHERE id = ?`,
+      [id],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException();
+    }
+    return rows[0];
   }
 
+  // Single UPDATE statement; fields left out of the body keep their current value
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const fields: string[] = [];
-    const values: any[] = [];
-
-    if (updateUserDto.name !== undefined) {
-      fields.push('name = ?');
-      values.push(updateUserDto.name);
+    const name = updateUserDto.name ?? null;
+    const age = updateUserDto.age ?? null;
+    const isActive = updateUserDto.isActive ?? null;
+    const [result] = await this.pool.execute<mysql.ResultSetHeader>(
+      'UPDATE users SET name = COALESCE(?, name), age = COALESCE(?, age), status = COALESCE(?, status) WHERE id = ?',
+      [name, age, isActive, id],
+    );
+    if (result.affectedRows === 0) {
+      throw new NotFoundException();
     }
-
-    if (updateUserDto.age !== undefined) {
-      fields.push('age = ?');
-      values.push(updateUserDto.age);
-    }
-
-    if (updateUserDto.status !== undefined) {
-      fields.push('status = ?');
-      values.push(updateUserDto.status);
-    }
-
-    if (fields.length === 0) {
-      return { id };
-    }
-
-    values.push(id);
-
-    const query = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
-    await this.pool.execute(query, values);
-
-    return { id, ...updateUserDto };
+    return { id, name, age, isActive };
   }
 
   async remove(id: number) {
-    await this.pool.execute('DELETE FROM users WHERE id = ?', [id]);
-    return { message: `User #${id} deleted successfuly` };
+    const [result] = await this.pool.execute<mysql.ResultSetHeader>(
+      'DELETE FROM users WHERE id = ?',
+      [id],
+    );
+    if (result.affectedRows === 0) {
+      throw new NotFoundException();
+    }
   }
 }

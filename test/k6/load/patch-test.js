@@ -13,7 +13,7 @@ export const options = {
   },
 };
 
-const BASE_URL = 'http://localhost';
+const BASE_URL = 'http://localhost/api';
 
 export default function () {
   const params = {
@@ -21,7 +21,9 @@ export default function () {
   };
 
   const updatePayload = JSON.stringify({
-    status: false,
+    name: `Updated User ${__VU}-${__ITER}`,
+    age: Math.floor(Math.random() * 40) + 18,
+    isActive: false,
   });
   const resPatch = http.patch(`${BASE_URL}/users/${5}`, updatePayload, params);
   check(resPatch, {

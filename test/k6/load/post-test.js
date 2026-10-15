@@ -13,7 +13,7 @@ export const options = {
   },
 };
 
-const BASE_URL = 'http://localhost';
+const BASE_URL = 'http://localhost/api';
 
 export default function () {
   const params = {
@@ -23,7 +23,7 @@ export default function () {
   const createPayload = JSON.stringify({
     name: `User ${__VU}-${__ITER}`,
     age: Math.floor(Math.random() * 40) + 18,
-    status: true,
+    isActive: true,
   });
 
   const resPost = http.post(`${BASE_URL}/users`, createPayload, params);

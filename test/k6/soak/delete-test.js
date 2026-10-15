@@ -9,7 +9,7 @@ export const options = {
   ],
 };
 
-const BASE_URL = 'http://localhost';
+const BASE_URL = 'http://localhost/api';
 
 export default function () {
   const resDelete = http.del(`${BASE_URL}/users/${5}`);

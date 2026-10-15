@@ -8,7 +8,7 @@ export const options = {
   ],
 };
 
-const BASE_URL = 'http://localhost';
+const BASE_URL = 'http://localhost/api';
 
 export default function () {
   const resGetList = http.get(`${BASE_URL}/users`);
