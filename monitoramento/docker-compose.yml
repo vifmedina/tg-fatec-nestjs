@@ -40,6 +40,17 @@ services:
       - prometheus
     restart: unless-stopped
 
+  # É necessário para o MAC o service abaixo:
+  docker-exporter:
+    image: wywywywy/docker_stats_exporter:latest
+    container_name: docker-exporter
+    ports:
+      - "9487:9487"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+
 volumes:
   prometheus_data:
   grafana_data:

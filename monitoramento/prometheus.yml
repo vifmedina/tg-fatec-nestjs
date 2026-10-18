@@ -1,9 +1,21 @@
+# Necessário para o cadvisor:
+# global:
+#   scrape_interval: 1s
+#   evaluation_interval: 1s
+
+# scrape_configs:
+#   - job_name: cadvisor
+#     static_configs:
+#       - targets:
+#           - cadvisor:8080
+
+# Necessário para o docker-exporter:
 global:
-  scrape_interval: 1s
-  evaluation_interval: 1s
+  scrape_interval: 3s
 
 scrape_configs:
-  - job_name: cadvisor
+  - job_name: docker
+    metrics_path: /
     static_configs:
       - targets:
-          - cadvisor:8080
+          - docker-exporter:9487
